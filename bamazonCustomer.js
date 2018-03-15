@@ -21,7 +21,7 @@ function start() {
   inquirer
     .prompt([
       {
-        type: "rawlist",
+        type: "list",
         message: "What would you like to buy?",
         choices: function() {
           var choiceArray = [];
@@ -31,8 +31,25 @@ function start() {
           return choiceArray;
         },
         name: "selecteditem"
+      },
+      {
+        type: "input",
+        name: "quantity",
+        message: "How many do you want?",
       }
     ]).then(function(user){
+      console.log(user.selecteditem);
+      var selectionID = user.selecteditem.split(" ");
+      console.log(selectionID[0]);
+      connection.query("SELECT stock_quantity FROM products WHERE item_id = " + selectionID[0], function(err, results){
+        var itemQuantity = results[0].stock_quantity;
+        if (itemQuantity > user.quantity) {
+          connection.query("UPDATE products SET stock_quantity = " + (itemQuantity - user.quantity) + " WHERE item_id = " + selectionID[0])
+          
+        } else {
+          console.log("Insuffcient quantity");
+        }
+      });
       
     })
   })
